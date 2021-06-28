@@ -2,16 +2,31 @@ import React from 'react';
 import './App.css';
 import Sidebar from './components/sidebar/Sidebar'
 import Chat from './components/chat'
+import Register from './components/register'
+
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+
 
 function App() {
   return (
-    <div className="App">
-      <div className="scrollable sidebar">
-        <Sidebar />
-      </div>
-      <div className="scrollable content">
-        <Chat/>
-      </div>
+    <div>
+      <Router>
+        <Switch>
+          <Route path="/" exact>
+            <Register />
+          </Route>
+          <Route path="/messages">
+            <div className="App">
+              <div className="scrollable sidebar">
+                <Sidebar />
+              </div>
+              <div className="scrollable content">
+                <Chat />
+              </div>
+            </div>
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 }

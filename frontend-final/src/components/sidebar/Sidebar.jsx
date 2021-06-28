@@ -1,8 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux';
+import { selectUserName } from '../../features/user/user'
+
+
 
 
 const Header = () => {
+    const userName = useSelector(selectUserName);
+
+    console.log(userName)
     return (
         <Container>
             <TopBar>
