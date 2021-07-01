@@ -1,22 +1,50 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { selectUserName } from '../../features/user/user'
-
-
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
+import { selectContacto, setContacto } from '../../features/contactos/contactoSlice'
 
 
 const Header = () => {
     const userName = useSelector(selectUserName);
+    const dispatch = useDispatch();
+    const contacto = useSelector(selectContacto)
+    let stompClient;
+    useEffect(()=>{
+        connect()
+        fetch('http://localhost:8080/fetchAllUsers').then(response =>{
+            if(response.ok){
+                response.json().then(data =>{
+                    let filter = data.filter(i => i !== userName)
+                    dispatch(setContacto(filter))
+                })
+            }
+        })
+    },[dispatch])
 
-    console.log(userName)
+    console.log(contacto)
+
+    const connect = () =>{
+        const socket = new SockJS("http://localhost:8080/chat");
+        stompClient = Stomp.over(socket);
+        stompClient.connect({},function(frame){
+            console.log("conectado" + frame);
+            stompClient.subscribe("/topic/messages/"+userName,function(response){
+                let data = JSON.parse(response.body);
+                console.log(data)
+            })
+        })
+    }
+
     return (
         <Container>
             <TopBar>
                 <h1>Contactos</h1>
             </TopBar>
             <ConversationSearch>
-                <input type="search" placeholder="Buscar Contacto"/>
+                <input type="search" placeholder="Buscar Contacto" />
             </ConversationSearch>
 
             <ConversationList>
