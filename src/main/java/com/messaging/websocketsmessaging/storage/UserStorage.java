@@ -4,7 +4,7 @@ import java.util.*;
 
 public class UserStorage {
     private static UserStorage instance;
-    private Set<String> users;
+    private Set<Map> users;
 
     private UserStorage() {
         users = new HashSet<>();
@@ -17,14 +17,23 @@ public class UserStorage {
         return instance;
     }
 
-    public Set<String> getUsers() {
+    public Set<Map> getUsers() {
         return users;
     }
 
-    public void setUser(String userName) throws Exception {
-        if (users.contains(userName)) {
-            throw new Exception("El usuario ya existe con nombre de usuario " + userName);
+
+    public boolean getValueFromKey(String username){
+        boolean isExist = false;
+        for (Map s: users){
+            if(s.containsValue(username)){
+                isExist = true;
+            }
         }
+
+        return isExist;
+    }
+
+    public void setUser(Map userName)  {
         users.add(userName);
     }
 }
