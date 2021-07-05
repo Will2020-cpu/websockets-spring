@@ -5,6 +5,7 @@ import { selectUserName } from '../../features/user/user'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import { selectContacto, setContacto } from '../../features/contactos/contactoSlice'
+import Cookies from 'universal-cookie'
 
 
 const Header = () => {
@@ -13,18 +14,22 @@ const Header = () => {
     const contacto = useSelector(selectContacto)
     let stompClient;
     useEffect(()=>{
+
         connect()
         fetch('http://localhost:8080/fetchAllUsers').then(response =>{
             if(response.ok){
-                response.json().then(data =>{
-                    let filter = data.filter(i => i !== userName)
-                    dispatch(setContacto(filter))
-                })
+                response.json().then(data => console.log(data))
+            }
+        })
+        fetch('http://localhost:8080/user',{
+            credentials: 'include',
+
+        }).then(response =>{
+            if(response.ok){
+                response.json().then(data => console.log(data))
             }
         })
     },[dispatch])
-
-    console.log(contacto)
 
     const connect = () =>{
         const socket = new SockJS("http://localhost:8080/chat");

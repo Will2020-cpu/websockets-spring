@@ -7,7 +7,7 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons'
 const Register = () => {
     return (
         <Container>
-         <ButtonSignGithub href="http://localhost:8080/login/oauth2/code/github"><FontAwesomeIcon icon={faGithub} size="2x"/> <span> Iniciar sesion con github </span></ButtonSignGithub>   
+         <ButtonSignGithub href="http://localhost:8080/oauth2/authorization/github"><FontAwesomeIcon icon={faGithub} size="2x"/> <span> Iniciar sesion con github </span></ButtonSignGithub>   
         </Container>
     )
 }
@@ -35,6 +35,7 @@ const ButtonSignGithub = styled.a`
     font-size:18px;
     padding:10px;
     letter-spacing: 2px;
+    text-decoration: none;
     cursor:pointer;
     
     &:hover{
