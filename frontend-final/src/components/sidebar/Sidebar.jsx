@@ -5,7 +5,6 @@ import { selectUserName } from '../../features/user/user'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import { selectContacto, setContacto } from '../../features/contactos/contactoSlice'
-import Cookies from 'universal-cookie'
 
 
 const Header = () => {
