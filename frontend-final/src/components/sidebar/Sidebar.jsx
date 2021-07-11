@@ -1,46 +1,75 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import { useSelector,useDispatch } from 'react-redux';
-import { selectUserName } from '../../features/user/user'
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser, selectUserUsername,selectUser } from '../../features/user/user'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import { selectContacto, setContacto } from '../../features/contactos/contactoSlice'
+import { Link, useHistory } from 'react-router-dom';
 
 
 const Header = () => {
-    const userName = useSelector(selectUserName);
-    const dispatch = useDispatch();
+    const UserName = useSelector(selectUserUsername);
     const contacto = useSelector(selectContacto)
+    const selectedUser = useSelector(selectUser)
+    const dispatch = useDispatch();
+    let messages = new Map();
+
+    const history = useHistory();
     let stompClient;
-    useEffect(()=>{
 
-        connect()
-        fetch('http://localhost:8080/fetchAllUsers').then(response =>{
-            if(response.ok){
-                response.json().then(data => console.log(data))
-            }
-        })
-        fetch('http://localhost:8080/user',{
-            credentials: 'include',
-
-        }).then(response =>{
-            if(response.ok){
-                response.json().then(data => console.log(data))
-            }
-        })
-    },[dispatch])
-
-    const connect = () =>{
+    const connect = () => {
         const socket = new SockJS("http://localhost:8080/chat");
         stompClient = Stomp.over(socket);
-        stompClient.connect({},function(frame){
+        stompClient.connect({}, function (frame) {
             console.log("conectado" + frame);
-            stompClient.subscribe("/topic/messages/"+userName,function(response){
+            stompClient.subscribe("/topic/messages/" + UserName, function (response) {
                 let data = JSON.parse(response.body);
-                console.log(data)
+                if(selectedUser === data.fromLogin){
+                    
+                }else{
+                    messages.set(data.fromLogin,data.message);
+                    console.log(messages)
+                }
             })
         })
     }
+
+    useEffect(() => {
+        connect()
+        obteniendoDatos()
+        async function obteniendoDatos() {
+            await fetch('http://localhost:8080/user', {
+                credentials: 'include',
+
+            }).then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        dispatch(
+                            setUser({
+                                name: data.name,
+                                username: data.login,
+                                picture: data.avatar_url
+                            })
+                        )
+                    })
+                }else{
+                    history.push('/');
+                }
+            })
+            fetch('http://localhost:8080/fetchAllUsers').then(response => {
+                if (response.ok) {
+                    response.json().then(data => {
+                        let datos = data.filter(item => item.login !== UserName);
+                        dispatch(setContacto(datos))
+                    })
+                }
+            })
+        }
+
+    }, [UserName, dispatch])
+
+
 
     return (
         <Container>
@@ -51,15 +80,21 @@ const Header = () => {
                 <input type="search" placeholder="Buscar Contacto" />
             </ConversationSearch>
 
-            <ConversationList>
-                <img src="https://randomuser.me/api/portraits/women/82.jpg" alt="profile" />
-                <div className="conversation-info">
-                    <h1>usuario 1</h1>
-                    <p>
-                        Hola, este es el mensaje mas reciente
-                    </p>
-                </div>
-            </ConversationList>
+            {
+                contacto.map(item => (
+                    <Link to={`/messages?name=${item.name}&username=${item.login}`}  key={item.login} style={{textDecoration:'none', color:"inherit"}}>
+                        <ConversationList>
+                            <img src={item.avatar_url} alt={item.name} />
+                            <div className="conversation-info">
+                                <h1>{item.name}</h1>
+                                <p>
+                                    Hola, este es el mensaje mas reciente
+                                </p>
+                            </div>
+                        </ConversationList>
+                    </Link>
+                ))
+            }
         </Container>
     )
 }
@@ -111,6 +146,11 @@ const ConversationList = styled.div`
     display:flex;
     align-items:center;
     padding:10px;
+    cursor: pointer;
+
+    &:hover{
+        background-color: rgba(0,0,0,0.1);
+    }
 
     img{
         width:50px;

@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom'
+import { selectUser, setSelectUser } from '../features/user/user'
+import { useSelector,useDispatch } from 'react-redux'
+import { useForm } from 'react-hook-form'
 
 
-const chat = () => {
+function useQuery() {
+    return new URLSearchParams(useLocation().search);
+}
+
+const Chat = () => {
+    let query = useQuery();
+    const { register,handleSubmit,watch } = useForm();
+
+    const dispatch = useDispatch();
+    const selectedUser = useSelector(selectUser)
+    useEffect(()=>{
+        if(query.get("username") !== null){
+            dispatch(setSelectUser(query.get("username")))
+        }
+    },[dispatch,query])
     return (
         <Container>
             <TopBar>
-                <h1>Nombre</h1>
+                <h1>{query.get("name")}</h1>
             </TopBar>
             <MessageListContainer>
                 <div className="message">
@@ -27,10 +45,11 @@ const chat = () => {
     )
 }
 
-export default chat
+export default Chat
+
+
 
 //Componentes
-
 const Container = styled.div`
 `;
 
@@ -71,7 +90,7 @@ const MessageListContainer = styled.div`
     .message .bubble-container{
         font-size: 14px;
         display:flex;
-        justify-content:flex-end;
+        justify-content:flex-start;
 
         .bubble{
             border-bottom-right-radius:20px;
@@ -88,7 +107,7 @@ const MessageListContainer = styled.div`
     
 `;
 
-const Compose = styled.div`
+const Compose = styled.form`
     padding:10px;
     display:flex;
     align-items:center;

@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
 import Sidebar from './components/sidebar/Sidebar'
-import Chat from './components/chat'
+import Chat from './components/Chat'
 import Register from './components/register'
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+
 
 
 function App() {

@@ -11,12 +11,16 @@ const contactoSlice = createSlice({
     reducers: {
         setContacto: (state, action) => {
             state.contactos = action.payload
+        },
+        addContacto:(state,action) =>{
+            state.contactos.concat(action.payload)
         }
     }
 })
 
 
 export const { setContacto } = contactoSlice.actions;
+export const { addContacto } = contactoSlice.actions
 export const selectContacto = (state) => state.contacto.contactos;
 
 

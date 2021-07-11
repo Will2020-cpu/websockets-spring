@@ -29,11 +29,13 @@ public class UserStorage {
                 isExist = true;
             }
         }
-
         return isExist;
     }
 
-    public void setUser(Map userName)  {
-        users.add(userName);
+    public void setUser(Map user)  {
+        for (Map s: users){
+            if (s.get("login").equals(user.get("login"))) return;
+        }
+        users.add(user);
     }
 }
