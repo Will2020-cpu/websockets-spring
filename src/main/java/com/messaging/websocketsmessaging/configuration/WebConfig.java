@@ -14,3 +14,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.allowCredentials(true).maxAge(3600);
     }
 }
+

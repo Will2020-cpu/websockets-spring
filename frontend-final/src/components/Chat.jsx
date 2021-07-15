@@ -1,26 +1,75 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom'
-import { selectUser, setSelectUser } from '../features/user/user'
+import { selectUser, setSelectUser,selectUserUsername } from '../features/user/user'
+import { addMessage,selectMessages } from '../features/messages/messages'
 import { useSelector,useDispatch } from 'react-redux'
 import { useForm } from 'react-hook-form'
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
+import uuid from 'react-uuid'
+
 
 
 function useQuery() {
     return new URLSearchParams(useLocation().search);
 }
 
+
+//Hacer un map que reciba en insertar en el reducer
 const Chat = () => {
     let query = useQuery();
-    const { register,handleSubmit,watch } = useForm();
+    const { register,handleSubmit } = useForm();
 
     const dispatch = useDispatch();
-    const selectedUser = useSelector(selectUser)
+    const selectedUser = useSelector(selectUser);
+    const username = useSelector(selectUserUsername);
+    const allMessages = useSelector(selectMessages);
+    let stompClient;
+    let newMessages = new Map();
+
+    const connect = () => {
+        const socket = new SockJS("http://localhost:8080/chat");
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log("conectado" + frame);
+            stompClient.subscribe("/topic/messages/" + username, function (response) {
+                let data = JSON.parse(response.body);
+                dispatch(addMessage({
+                    message:data.message,
+                    fromLogin:data.fromLogin
+                }))     
+            })
+        })
+        
+    }
+
     useEffect(()=>{
+        connect();
+
         if(query.get("username") !== null){
             dispatch(setSelectUser(query.get("username")))
         }
-    },[dispatch,query])
+    },[dispatch,query,connect])
+
+
+
+    const onSubmit = (data,e) =>{
+        
+	    stompClient.send("/app/chat/" + selectedUser,{},JSON.stringify({
+            fromLogin:username,
+            message:data.message
+        }))
+
+        const datos = {
+            message:data.message,
+            fromLogin:username
+        }
+        dispatch(addMessage(datos));
+        e.target.reset();
+    }
+    
+
     return (
         <Container>
             <TopBar>
@@ -31,15 +80,19 @@ const Chat = () => {
                     <div className="timestamp">
                         Sabado, Junio 26 2021 8:38PM
                     </div>
-                    <div className="bubble-container">
-                        <div className="bubble">
-                            Hola este un nuevo mensaje escrito por mi
-                        </div>
-                    </div>
+                    {
+                        allMessages.map(item =>(
+                        <BubbleContainer messageColor={item.fromLogin === username}  key={uuid()}>
+                            <div className="bubble">
+                            {item.message}
+                            </div>
+                        </BubbleContainer>
+                        ))
+                    }
                 </div>
             </MessageListContainer>
-            <Compose>
-                <input type="text" placeholder="Escribir...." />
+            <Compose onSubmit={handleSubmit(onSubmit)}>
+                <input type="text" {...register("message")}  placeholder="Escribir...." />
             </Compose>
         </Container>
     )
@@ -62,6 +115,8 @@ const TopBar = styled.div`
     border-bottom:1px solid #eeeef1;
     position:sticky;
     top:0;
+    z-index:0;
+    background:#fff;
 
     h1{
         font-size: 16px;
@@ -71,6 +126,8 @@ const TopBar = styled.div`
 
 const MessageListContainer = styled.div`
     padding:10px 10px 70px;
+    z-index:-1;
+
 
     .message{
         display:flex;
@@ -87,25 +144,27 @@ const MessageListContainer = styled.div`
         text-transform: uppercase;
     }
 
-    .message .bubble-container{
-        font-size: 14px;
-        display:flex;
-        justify-content:flex-start;
-
-        .bubble{
-            border-bottom-right-radius:20px;
-            margin-bottom: 10px;
-            background: #007aff;
-            color:#fff;
-            border-top-left-radius: 20px;
-            border-bottom-left-radius: 20px;
-            padding:10px 15px;
-            margin:1px 0;
-            max-width:75%;
-        }
-    }
     
 `;
+
+const BubbleContainer = styled.div`
+    font-size:14px;
+    display:flex;
+    justify-content:${props => props.messageColor ? "flex-end" : "flex-start"};
+
+     .bubble{
+         border-bottom-right-radius:20px;
+         margin-bottom: 10px;
+         background: ${props => props.messageColor ? "#007aff" : "#F4F4F8"};
+         color:${props => props.messageColor ? "#fff" : "#000"};
+         border-top-left-radius: 20px;
+         border-bottom-left-radius: 20px;
+         padding:10px 15px;
+         margin:1px 0;
+         max-width:75%;
+    }
+`;
+
 
 const Compose = styled.form`
     padding:10px;
@@ -115,7 +174,9 @@ const Compose = styled.form`
     position:fixed;
     width:calc(100% - 20px);
     bottom:0;
-
+    z-index:1;
+    background:#fff;
+    
     input{
         flex:1 1;
         border:none;

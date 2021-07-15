@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux';
-import { setUser, selectUserUsername,selectUser } from '../../features/user/user'
-import SockJS from 'sockjs-client'
-import Stomp from 'stompjs'
+import { setUser, selectUserUsername } from '../../features/user/user'
 import { selectContacto, setContacto } from '../../features/contactos/contactoSlice'
 import { Link, useHistory } from 'react-router-dom';
 
@@ -11,32 +9,11 @@ import { Link, useHistory } from 'react-router-dom';
 const Header = () => {
     const UserName = useSelector(selectUserUsername);
     const contacto = useSelector(selectContacto)
-    const selectedUser = useSelector(selectUser)
     const dispatch = useDispatch();
-    let messages = new Map();
 
     const history = useHistory();
-    let stompClient;
-
-    const connect = () => {
-        const socket = new SockJS("http://localhost:8080/chat");
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log("conectado" + frame);
-            stompClient.subscribe("/topic/messages/" + UserName, function (response) {
-                let data = JSON.parse(response.body);
-                if(selectedUser === data.fromLogin){
-                    
-                }else{
-                    messages.set(data.fromLogin,data.message);
-                    console.log(messages)
-                }
-            })
-        })
-    }
 
     useEffect(() => {
-        connect()
         obteniendoDatos()
         async function obteniendoDatos() {
             await fetch('http://localhost:8080/user', {
