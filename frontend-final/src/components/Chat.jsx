@@ -26,7 +26,6 @@ const Chat = () => {
     const username = useSelector(selectUserUsername);
     const allMessages = useSelector(selectMessages);
     let stompClient;
-    let newMessages = new Map();
 
     const connect = () => {
         const socket = new SockJS("http://localhost:8080/chat");
@@ -41,7 +40,6 @@ const Chat = () => {
                 }))     
             })
         })
-        
     }
 
     useEffect(()=>{
@@ -155,7 +153,7 @@ const BubbleContainer = styled.div`
      .bubble{
          border-bottom-right-radius:20px;
          margin-bottom: 10px;
-         background: ${props => props.messageColor ? "#007aff" : "#F4F4F8"};
+         background-image: ${props => props.messageColor ? "radial-gradient(circle at 50% -20.71%, #ade5ff 0, #7dcefb 25%, #3cb5f2 50%, #009ce9 75%, #0085e0 100%)" : "#F4F4F8"};
          color:${props => props.messageColor ? "#fff" : "#000"};
          border-top-left-radius: 20px;
          border-bottom-left-radius: 20px;
