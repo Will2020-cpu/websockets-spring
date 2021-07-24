@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { selectUser, setSelectUser, selectUserUsername } from '../features/user/user'
 import { addMessage, selectMessages } from '../features/messages/messages'
 import { useSelector, useDispatch } from 'react-redux'
@@ -8,9 +8,6 @@ import { useForm } from 'react-hook-form'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import uuid from 'react-uuid'
-import { useTransition } from 'react-spring'
-import Modal from './Modal'
-
 
 
 function useQuery() {
@@ -21,14 +18,7 @@ function useQuery() {
 const Chat = () => {
     let query = useQuery();
     const { register, handleSubmit } = useForm();
-    const [modalVisible, setModalVisible] = useState(false);
-
-    const transitions = useTransition(modalVisible, {
-        from: { opacity: 0, transform: "translateY(-40px)" },
-        enter: { opacity: 1, transform: "translateY(0)" },
-        leave: { opacity: 0, transform: "translateY(-40px)" }
-    })
-
+    const location = useLocation();
 
     const dispatch = useDispatch();
     const selectedUser = useSelector(selectUser);
@@ -76,9 +66,6 @@ const Chat = () => {
         e.target.reset();
     }
 
-    const onClick = () =>{
-        
-    }
 
     return (
         <Container>
@@ -86,7 +73,13 @@ const Chat = () => {
                 <div className="left-items" />
                 <h1>{query.get("name")}</h1>
                 <div className="right-items">
-                    <button onClick={() => setModalVisible(true)}>Change Color</button>
+                    <Link
+                        to={{
+                            pathname: '/settings',
+                            state: { background: location }
+                        }}
+
+                    >Probando</Link>
                 </div>
             </TopBar>
             <MessageListContainer>
@@ -108,14 +101,7 @@ const Chat = () => {
             <Compose onSubmit={handleSubmit(onSubmit)}>
                 <input type="text" {...register("message")} placeholder="Escribir...." />
             </Compose>
-            {transitions((styles, item) => (
-                item && (
-                    <Modal
-                        style={styles}
-                        closeModal={() => setModalVisible(false)}
-                    />
-                )
-            ))}
+
         </Container>
     )
 }
