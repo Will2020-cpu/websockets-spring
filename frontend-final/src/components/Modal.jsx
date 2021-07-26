@@ -115,10 +115,10 @@ const Modal = () => {
               <div className="box-content-theme">
                 {
                   Object.values(theme).map(item => (
-                    <Themes  themeColor={item.color} onClick={()=>onClickTheme(item.color)} >
+                    <Themes  themeColor={item.color} onClick={()=>onClickTheme(item.color)}  >
                       {
                         themeColor.body === item.color ? 
-                        <input type="radio" name="theme" id={item.name}  checked/>
+                        <input type="radio" name="theme" id={item.name}  defaultChecked/>
                         :
                         <input type="radio" name="theme" id={item.name} />
                       }
@@ -233,6 +233,7 @@ const Themes = styled.label`
   transition:.3s;
 
 
+
   input{
     position:absolute;
     left:0;
@@ -266,6 +267,7 @@ const Themes = styled.label`
     transform:scale(0);
   }
 
+
   .text{
     color:hsl(0,0%,60%);
     margin-left:14px;
@@ -280,6 +282,7 @@ const Themes = styled.label`
   input:checked~.text{
     color:hsl(0,0%,40%);
   }
+
 `
 
 const Colors = styled(Themes)`

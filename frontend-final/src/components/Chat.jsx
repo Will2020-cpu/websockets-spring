@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form'
 import SockJS from 'sockjs-client'
 import Stomp from 'stompjs'
 import uuid from 'react-uuid'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPalette } from '@fortawesome/free-solid-svg-icons';
 
 
 function useQuery() {
@@ -78,8 +80,8 @@ const Chat = () => {
                             pathname: '/settings',
                             state: { background: location }
                         }}
-
-                    >Probando</Link>
+                        className="modal-link"
+                    ><FontAwesomeIcon icon={faPalette} size="2x"/> </Link>
                 </div>
             </TopBar>
             <MessageListContainer>
@@ -119,7 +121,7 @@ const TopBar = styled.div`
     display:flex;
     align-items:center;
     font-weight: 500;
-    border-bottom:1px solid #eeeef1;
+    border-bottom:1px solid ${props => props.theme.body === '#fff' ? '#eff3f4': '#38444d'};
     position:sticky;
     top:0;
     z-index:0;
@@ -142,7 +144,11 @@ const TopBar = styled.div`
         padding:10px;
         display:flex;
         flex-direction:row-reverse;
+        .modal-link{
+            color:${props => props.theme.main};
+        }
     }
+
 `
 
 const MessageListContainer = styled.div`
@@ -192,17 +198,19 @@ const Compose = styled.form`
     padding:10px;
     display:flex;
     align-items:center;
-    border-top: 1px solid #eeeef1;
+    border-top: 1px solid ${props => props.theme.body === '#fff' ? '#eff3f4': '#38444d'};
     position:fixed;
     width:calc(100% - 20px);
     bottom:0;
     z-index:1;
     background:${props => props.theme.body};
     
+
     input{
         flex:1 1;
         border:none;
         font-size: 14px;
+        color:inherit;
         height:40px;
         background: none;
         width:100%;

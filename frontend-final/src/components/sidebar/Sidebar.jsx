@@ -88,7 +88,7 @@ const Container = styled.div`
 
 const TopBar = styled.div`
     height: 50px;
-    border-bottom:1px solid #eeeef1;
+    border-bottom:1px solid ${props => props.theme.body === '#fff' ? '#eff3f4': '#38444d'};
     display:flex;
     align-items:center;
     justify-content:center;
