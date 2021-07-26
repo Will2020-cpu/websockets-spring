@@ -12,11 +12,18 @@
 .sidebar{
     grid-row-start: 1;
     grid-row-end: span 3;
+    padding: 0px 5px;
 }
 
 .scrollable{
     position: relative;
-    overflow-y: scroll;
+    overflow-y: auto;
+}
+
+.scrollable::-webkit-scrollbar{
+    width: 8px;
+    height: 8px;
+    display: none;
 }
 
 .content{

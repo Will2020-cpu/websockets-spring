@@ -3,10 +3,16 @@ import { animated } from 'react-spring'
 import { useHistory, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { useTransition } from 'react-spring'
+import { changeColor,changeColorBubble } from '../features/themes/themes'
+import { useDispatch,useSelector } from 'react-redux'
+import { selectTheme } from '../features/themes/themes'
+
+
 
 const Modal = () => {
+  const dispatch = useDispatch();
+  const themeColor = useSelector(selectTheme)
   const location = useLocation();
-  console.log(location.pathname === '/settings')
   const [modalVisible, setModalVisible] = useState(location.pathname === '/settings');
 
   const history = useHistory();
@@ -32,19 +38,51 @@ const Modal = () => {
     green: '#17BF63'
   }
 
-  const theme = {
+  let theme = {
     light: {
       color: '#fff',
       name: 'Claro',
+      active: true,
     },
     semiDark: {
       color: '#15202B',
-      name: 'Semi-Dark'
+      name: 'Semi-Dark',
+      active: false,
     },
     dark: {
       color: '#000000',
-      name: 'Oscuro'
+      name: 'Oscuro',
+      active: false,
     }
+  }
+
+  const onClickTheme = (color) => {
+    const colorFont = color !== '#fff' ? '#fff' : '#000';
+    let colorBox = '';
+
+    switch (color) {
+      case ('#15202B'):
+        colorBox = '#192734';
+        break;
+      case ('#000000'):
+        colorBox = '#15181C'
+        break;
+      default:
+        colorBox = '#F7F9F9'
+    }
+
+    dispatch(changeColor({
+      body: color,
+      color: colorFont,
+      colorBox: colorBox
+    }))
+
+  }
+
+  const onClickColor = (color) =>{
+    dispatch(changeColorBubble({
+      color:color,
+    }))
   }
 
 
@@ -61,7 +99,15 @@ const Modal = () => {
               <div className="box-content-color">
                 {
                   Object.values(colors).map(item => (
-                    <div><Colors colorBox={item} /></div>
+                    <Colors colorBox={item} onClick={()=> onClickColor(item)} >
+                      {
+                        themeColor.main === item ? 
+                        <input type="radio" name="color" id={item} checked/>
+                        :
+                        <input type="radio" name="color" id={item}/>
+                      }
+                        <div className="design"></div>
+                    </Colors>
                   ))
                 }
               </div>
@@ -69,12 +115,22 @@ const Modal = () => {
               <div className="box-content-theme">
                 {
                   Object.values(theme).map(item => (
-                    <div><Themes colorTheme={item.color}>{item.name}</Themes></div>
+                    <Themes  themeColor={item.color} onClick={()=>onClickTheme(item.color)} >
+                      {
+                        themeColor.body === item.color ? 
+                        <input type="radio" name="theme" id={item.name}  checked/>
+                        :
+                        <input type="radio" name="theme" id={item.name} />
+                      }
+                      <div className="design"></div>
+                      <div className="text">{item.name}</div>
+                    </Themes>
                   ))
                 }
               </div>
             </div>
             <button className="modal-close-button" onClick={onClick}>Listo</button>
+
           </animated.div>
         )
       ))}
@@ -92,14 +148,14 @@ const Container = styled.div`
   bottom:0;
   right:0;
   z-index:10;
-  background:rgba(0,0,0,0.15);
+  background:rgba(91,112,131,0.4);
 
   .modal {
     width: 500px;
     height: 450px;
     border-radius:20px;
-    color: #000;
-    background:#fff;
+    color:${props => props.theme.colorBody};
+    background:${props => props.theme.body};
     padding: 14px 40px;
     position: absolute;
     z-index: 90;
@@ -124,8 +180,10 @@ const Container = styled.div`
         }
 
         .box-content-color{
-          background:#F7F9F9;
+          background:${props => props.theme.colorBox};
           padding:10px;
+          border-radius: 20px;
+          position:relative;
           display:grid;
           grid-template-columns:repeat(6,minmax(0,1fr));
           justify-content: center;
@@ -134,9 +192,11 @@ const Container = styled.div`
         }
 
         .box-content-theme{
-          background:#F7F9F9;
+          background:${props => props.theme.colorBox};
           padding:10px;
+          position:relative;
           margin-top:10px;
+          border-radius: 20px;
           display:grid;
           grid-template-columns:repeat(3,minmax(0,1fr));
           justify-content:center;
@@ -147,9 +207,9 @@ const Container = styled.div`
 
     .modal-close-button {
     display:flex;
-    padding: 10px;
+    padding: 10px 15px;
     border-radius:20px;
-    background-color: #1A91DA;
+    background-color: ${props => props.theme.main};
     color: #fff;
     font-size: 1em;
     border: none;
@@ -158,32 +218,87 @@ const Container = styled.div`
     cursor: pointer;
     transition: background-color 0.1s linear;
     }
-
-    .modal-close-button:hover,
-    .modal-close-button:focus {
-    background-color: #1A91DA;
-    }
   }
 `;
 
-const Colors = styled.div`
+
+const Themes = styled.label`
+  display:flex;
+  align-items:center;
+  border-radius:100px;
+  background:${props => props.themeColor};
+  padding:14px 16px;
+  margin:10px 0;
+  cursor:pointer;
+  transition:.3s;
+
+
+  input{
+    position:absolute;
+    left:0;
+    top:0;
+    right:0;
+    width:1px;
+    height:1px;
+    opacity:0;
+    z-index:-1;
+  }
+  .design{
+    width:22px;
+    height:22px;
+    border-radius:100px;
+    background: ${props => props.theme.main};
+    position:relative;
+
+    &:before{
+      content:'';
+      display:inline-block;
+      width:inherit;
+      height:inherit;
+      border-radius:inherit;
+
+      background:hsl(0,0%,90%);
+      transform:scale(1.1);
+      transition:.3s;
+    }
+  }
+  input:checked+.design:before{
+    transform:scale(0);
+  }
+
+  .text{
+    color:hsl(0,0%,60%);
+    margin-left:14px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    font-size:12px;
+    font-weight:900;
+
+    transition:.3s;
+  }
+
+  input:checked~.text{
+    color:hsl(0,0%,40%);
+  }
+`
+
+const Colors = styled(Themes)`
   background:${props => props.colorBox};
-  padding:30px 18px;
+  padding:0;
+  width:50px;
+  height:50px;
   border-radius:50%;
 
+  .design{
+    background:url("/check.png") no-repeat;
+    background-size:20px 20px;
+    left:27%;
+    
+    &:before{
+      background:${props => props.colorBox};
+    }
+  }
 `
-
-const Themes = styled.div`
-  background: ${props => props.colorTheme};
-  color:${props => props.colorTheme !== '#fff' ? '#fff':'#000'};
-  font-size:17px;
-  font-weight: 600;
-  padding:10px 20px;
-  border-radius:5px;
-  border:1px solid #1A91DA;
-
-`
-
 
 
 

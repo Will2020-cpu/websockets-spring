@@ -123,7 +123,7 @@ const TopBar = styled.div`
     position:sticky;
     top:0;
     z-index:0;
-    background:#fff;
+    background:${props => props.theme.body};
 
     .left-items{
         flex:1 1;
@@ -197,7 +197,7 @@ const Compose = styled.form`
     width:calc(100% - 20px);
     bottom:0;
     z-index:1;
-    background:#fff;
+    background:${props => props.theme.body};
     
     input{
         flex:1 1;
