@@ -44,7 +44,7 @@ const Header = () => {
             })
         }
 
-    }, [UserName, dispatch])
+    }, [UserName, dispatch,history])
 
 
 

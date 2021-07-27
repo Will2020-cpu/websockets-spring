@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom'
 import { selectUser, setSelectUser, selectUserUsername } from '../features/user/user'
@@ -59,12 +59,17 @@ const Chat = () => {
             fromLogin: username,
             message: data.message
         }))
+        
 
-        const datos = {
-            message: data.message,
-            fromLogin: username
+        if (data.message !== '') {
+
+            const datos = {
+                message: data.message,
+                fromLogin: username
+            }
+            dispatch(addMessage(datos));
         }
-        dispatch(addMessage(datos));
+
         e.target.reset();
     }
 
@@ -81,7 +86,7 @@ const Chat = () => {
                             state: { background: location }
                         }}
                         className="modal-link"
-                    ><FontAwesomeIcon icon={faPalette} size="2x"/> </Link>
+                    ><FontAwesomeIcon icon={faPalette} size="2x" /> </Link>
                 </div>
             </TopBar>
             <MessageListContainer>
@@ -121,7 +126,7 @@ const TopBar = styled.div`
     display:flex;
     align-items:center;
     font-weight: 500;
-    border-bottom:1px solid ${props => props.theme.body === '#fff' ? '#eff3f4': '#38444d'};
+    border-bottom:1px solid ${props => props.theme.body === '#fff' ? '#eff3f4' : '#38444d'};
     position:sticky;
     top:0;
     z-index:0;
@@ -152,7 +157,7 @@ const TopBar = styled.div`
 `
 
 const MessageListContainer = styled.div`
-    padding:10px 10px 70px;
+    padding:10px 20px 70px;
     z-index:-1;
 
 
@@ -183,9 +188,11 @@ const BubbleContainer = styled.div`
      .bubble{
          border-bottom-right-radius:20px;
          margin-bottom: 10px;
+         border-top-right-radius:${props => props.messageColor ? "none" : "20px"};
          background: ${props => props.messageColor ? props.theme.main : "#F4F4F8"};
          color:${props => props.messageColor ? "#fff" : "#000"};
-         border-top-left-radius: 20px;
+         border-top-left-radius: ${props => props.messageColor ? "20px" : "none"};
+         font-weight:600;
          border-bottom-left-radius: 20px;
          padding:10px 15px;
          margin:1px 0;
@@ -198,7 +205,7 @@ const Compose = styled.form`
     padding:10px;
     display:flex;
     align-items:center;
-    border-top: 1px solid ${props => props.theme.body === '#fff' ? '#eff3f4': '#38444d'};
+    border-top: 1px solid ${props => props.theme.body === '#fff' ? '#eff3f4' : '#38444d'};
     position:fixed;
     width:calc(100% - 20px);
     bottom:0;
